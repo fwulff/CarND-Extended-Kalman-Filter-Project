@@ -1,9 +1,9 @@
-#ifndef MEASUREMENT_PACKAGE_H_
-#define MEASUREMENT_PACKAGE_H_
+#ifndef GROUND_TRUTH_PACKAGE_H_
+#define GROUND_TRUTH_PACKAGE_H_
 
 #include "Eigen/Dense"
 
-class MeasurementPackage {
+class GroundTruthPackage {
 public:
   long timestamp_;
 
@@ -12,7 +12,8 @@ public:
     RADAR
   } sensor_type_;
 
-  Eigen::VectorXd raw_measurements_;
+  Eigen::VectorXd gt_values_;
+
 };
 
 #endif /* MEASUREMENT_PACKAGE_H_ */

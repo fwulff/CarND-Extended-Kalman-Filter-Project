@@ -2,6 +2,8 @@
 #define TOOLS_H_
 #include <vector>
 #include "Eigen/Dense"
+#include "tools.h"
+#include <iostream>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -28,7 +30,6 @@ public:
   * A helper method to calculate Jacobians.
   */
   MatrixXd CalculateJacobian(const VectorXd& x_state);
-
 };
 
 #endif /* TOOLS_H_ */

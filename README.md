@@ -1,65 +1,108 @@
 # Extended Kalman Filter Project Starter Code
 Self-Driving Car Engineer Nanodegree Program
 
-In this project you will utilize a kalman filter to estimate the state of a moving object of interest with noisy lidar and radar measurements. Passing the project requires obtaining RMSE values that are lower than the tolerance outlined in the project rubric. 
+---
+## Results
 
-This project involves the Term 2 Simulator which can be downloaded [here](https://github.com/udacity/self-driving-car-sim/releases)
+Here are the plotted results for the passing submission.
 
-This repository includes two files that can be used to set up and install [uWebSocketIO](https://github.com/uWebSockets/uWebSockets) for either Linux or Mac systems. For windows you can use either Docker, VMware, or even [Windows 10 Bash on Ubuntu](https://www.howtogeek.com/249966/how-to-install-and-use-the-linux-bash-shell-on-windows-10/) to install uWebSocketIO. Please see [this concept in the classroom](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/16cf4a78-4fc7-49e1-8621-3450ca938b77) for the required version and installation scripts.
+![png](./results/plot_data_1.png)
 
-Once the install for uWebSocketIO is complete, the main program can be built and run by doing the following from the project top directory.
+![png](./images/plot_data_2.png)
 
-1. mkdir build
-2. cd build
-3. cmake ..
-4. make
-5. ./ExtendedKF
+These are the used parameters and noise:
 
-Tips for setting up your environment can be found [here](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/23d376c7-0195-4276-bdf0-e02f1f3c665d)
+```cpp
+  // initializing matrices
+  R_laser_ = MatrixXd(2, 2);
 
-Note that the programs that need to be written to accomplish the project are src/FusionEKF.cpp, src/FusionEKF.h, kalman_filter.cpp, kalman_filter.h, tools.cpp, and tools.h
+  //no correlation
+  R_laser_ << 0.0225, 0.,
+              0., 0.0225;
 
-The program main.cpp has already been filled out, but feel free to modify it.
+  R_radar_ = MatrixXd(3, 3);
 
-Here is the main protcol that main.cpp uses for uWebSocketIO in communicating with the simulator.
+  //no correlation
+  R_radar_ << 0.09, 0., 0.,
+              0., 0.0009, 0.,
+              0., 0., 0.09;
 
+  H_laser_ = MatrixXd(2, 4);
 
-INPUT: values provided by the simulator to the c++ program
+  H_laser_ << 1, 0, 0, 0,
+              0, 1, 0, 0;
 
-["sensor_measurement"] => the measurement that the simulator observed (either lidar or radar)
+  Hj_ = MatrixXd(3, 4);
+  Hj_ <<  1, 1, 0, 0,
+          1, 1, 0, 0,
+          1, 1, 1, 1;
 
+  //state covariance matrix P
+  P_ = MatrixXd(4, 4);
+  P_ <<  1, 0, 0, 0,
+          0, 1, 0, 0,
+          0, 0, 1000, 0,
+          0, 0, 0, 1000;
 
-OUTPUT: values provided by the c++ program to the simulator
+  //the initial transition matrix F_
+  F_ = MatrixXd(4, 4);
+  F_ <<  1, 0, 1, 0,
+         0, 1, 0, 1,
+         0, 0, 1, 0,
+         0, 0, 0, 1;
 
-["estimate_x"] <= kalman filter estimated position x
-["estimate_y"] <= kalman filter estimated position y
-["rmse_x"]
-["rmse_y"]
-["rmse_vx"]
-["rmse_vy"]
+  //set the process covariance matrix Q
+  Q_ = MatrixXd(4, 4);
+
+  //create a 4D state vector, we don't know yet the values of the x state
+  x_ = VectorXd(4);
+  x_ << 1, 1, 1, 1;
+
+  //set the acceleration noise components
+  noise_ax_ = 10;
+  noise_ay_ = 10;
+```
+
+with 
+
+x : (initial) state = "estimate"
+P: (Initial) state covariance = "uncertanity"
+F: State Transition matrix = "motion model for prediction step"
+H: Measurement matrix = "measurement mode for update step"
+R: Measurement covariance matrix = "measurement noise"
+Q: Process covariance matrix = "process noise"
+u: motion vector
+z: measurement
+I: Identity matrix
+S: mapped Error
+K: Kalman Gain
+
+Note that the R and H are different for Laser and Radar due to different sensor types and models.
+
+Using the Extended Kalman Filter, Hj is the Jacobian Matrix, which is necessary for linearizing / linear approximation.
 
 ---
-
-## Other Important Dependencies
+## Dependencies
 
 * cmake >= 3.5
-  * All OSes: [click here for installation instructions](https://cmake.org/install/)
-* make >= 4.1 (Linux, Mac), 3.81 (Windows)
+ * All OSes: [click here for installation instructions](https://cmake.org/install/)
+* make >= 4.1
   * Linux: make is installed by default on most Linux distros
   * Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
   * Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
 * gcc/g++ >= 5.4
   * Linux: gcc / g++ is installed by default on most Linux distros
-  * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
+  * Mac: same deal as make - [install Xcode command line tools]((https://developer.apple.com/xcode/features/)
   * Windows: recommend using [MinGW](http://www.mingw.org/)
 
 ## Basic Build Instructions
 
 1. Clone this repo.
 2. Make a build directory: `mkdir build && cd build`
-3. Compile: `cmake .. && make` 
-   * On windows, you may need to run: `cmake .. -G "Unix Makefiles" && make`
-4. Run it: `./ExtendedKF `
+3. Compile: `cmake .. && make`
+4. Run it: `./ExtendedKF path/to/input.txt path/to/output.txt`. You can find
+   some sample inputs in 'data/'.
+    - eg. `./ExtendedKF ../data/sample-laser-radar-measurement-data-1.txt output.txt`
 
 ## Editor Settings
 
@@ -88,28 +131,23 @@ Note: regardless of the changes you make, your project must be buildable using
 cmake and make!
 
 More information is only accessible by people who are already enrolled in Term 2
-of CarND. If you are enrolled, see [the project resources page](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/382ebfd6-1d55-4487-84a5-b6a5a4ba1e47)
+of CarND. If you are enrolled, see [the project page](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/12dd29d8-2755-4b1b-8e03-e8f16796bea8)
 for instructions and the project rubric.
 
-## Hints and Tips!
+## Hints!
 
 * You don't have to follow this directory structure, but if you do, your work
   will span all of the .cpp files here. Keep an eye out for TODOs.
-* Students have reported rapid expansion of log files when using the term 2 simulator.  This appears to be associated with not being connected to uWebSockets.  If this does occur,  please make sure you are conneted to uWebSockets. The following workaround may also be effective at preventing large log files.
-
-    + create an empty log file
-    + remove write permissions so that the simulator can't write to log
- * Please note that the ```Eigen``` library does not initialize ```VectorXd``` or ```MatrixXd``` objects with zeros upon creation.
 
 ## Call for IDE Profiles Pull Requests
 
 Help your fellow students!
 
 We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to ensure
+agnostic as possible. Similarly, we omitted IDE profiles in order to we ensure
 that students don't feel pressured to use one IDE or another.
 
-However! We'd love to help people get up and running with their IDEs of choice.
+However! I'd love to help people get up and running with their IDEs of choice.
 If you've created a profile for an IDE that you think other students would
 appreciate, we'd love to have you add the requisite profile files and
 instructions to ide_profiles/. For example if you wanted to add a VS Code
@@ -121,9 +159,11 @@ profile, you'd add:
 The README should explain what the profile does, how to take advantage of it,
 and how to install it.
 
-Regardless of the IDE used, every submitted project must
+Frankly, I've never been involved in a project with multiple IDE profiles
+before. I believe the best way to handle this would be to keep them out of the
+repo root to avoid clutter. My expectation is that most profiles will include
+instructions to copy files to a new location to get picked up by the IDE, but
+that's just a guess.
+
+One last note here: regardless of the IDE used, every submitted project must
 still be compilable with cmake and make.
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
