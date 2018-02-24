@@ -8,7 +8,7 @@ Here are the plotted results for the passing submission.
 
 ![png](./results/plot_data_1.png)
 
-![png](./images/plot_data_2.png)
+![png](./results/plot_data_2.png)
 
 These are the used parameters and noise:
 
@@ -65,17 +65,12 @@ These are the used parameters and noise:
 
 with 
 
-x : (initial) state = "estimate"
-P: (Initial) state covariance = "uncertanity"
-F: State Transition matrix = "motion model for prediction step"
-H: Measurement matrix = "measurement mode for update step"
-R: Measurement covariance matrix = "measurement noise"
-Q: Process covariance matrix = "process noise"
-u: motion vector
-z: measurement
-I: Identity matrix
-S: mapped Error
-K: Kalman Gain
+* x : (initial) state = "estimate"
+* P: (Initial) state covariance = "uncertanity"
+* F: State Transition matrix = "motion model for prediction step"
+* H: Measurement matrix = "measurement mode for update step"
+* R: Measurement covariance matrix = "measurement noise"
+* Q: Process covariance matrix = "process noise"
 
 Note that the R and H are different for Laser and Radar due to different sensor types and models.
 
